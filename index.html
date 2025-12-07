@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Medicine Tracker - Prabhas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        body.dark {
+            background: #020617;
+            color: #e5e7eb;
+        }
+
+        body.light {
+            background: #f3f4f6;
+            color: #020617;
+        }
+
+        .app-container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #111827;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+            border: 1px solid #1f2937;
+        }
+
+        body.light .card {
+            background: #ffffff;
+            border-color: #d1d5db;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+        body.light .subtitle {
+            color: #6b7280;
+        }
+
+        .brand {
+            font-size: 11px;
+            color: #6b7280;
+            text-align: right;
+            margin-bottom: 12px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #374151;
+            background: #020617;
+            color: #9ca3af;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .tab-btn.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        body.light .tab-btn {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #4b5563;
+        }
+
+        body.light .tab-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .pill {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #1e293b;
+            color: #9ca3af;
+        }
+
+        body.light .pill {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .medicine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 440px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .med-card {
+            background: #020617;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #1f2937;
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) auto;
+            gap: 8px;
+            align-items: center;
+        }
+
+        body.light .med-card {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+        .med-main {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .med-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .med-dose {
+            font-size: 13px;
+            color: #93c5fd;
+        }
+
+        body.light .med-dose {
+            color: #1d4ed8;
+        }
+
+        .med-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #9ca3af;
+            border: 1px solid #1f2937;
+        }
+
+        .tag.morning { border-color: #fbbf24; color: #fbbf24; }
+        .tag.afternoon { border-color: #22c55e; color: #22c55e; }
+        .tag.evening { border-color: #818cf8; color: #818cf8; }
+
+        body.light .tag {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #4b5563;
+        }
+
+        .med-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #991b1b;
+            color: #fecaca;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .btn-secondary {
+            background: #374151;
+            color: #e5e7eb;
+        }
+
+        body.light .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .form-card {
+            background: #020617;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid #1f2937;
+        }
+
+        body.light .form-card {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+        .form-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 12px;
+            color: #9ca3af;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        body.light label {
+            color: #4b5563;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: #020617;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            padding: 7px 10px;
+            color: #e5e7eb;
+            font-size: 13px;
+        }
+
+        body.light input,
+        body.light select,
+        body.light textarea {
+            background: #ffffff;
+            border-color: #d1d5db;
+            color: #111827;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            margin-top: 4px;
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .status-active {
+            background: #022c22;
+            color: #6ee7b7;
+        }
+
+        .status-inactive {
+            background: #3f1f1f;
+            color: #fecaca;
+        }
+
+        body.light .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        body.light .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row > div {
+            flex: 1;
+        }
+
+        .small-text {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .welcome-btn {
+            padding: 10px 22px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: white;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .welcome-btn:active {
+            transform: translateY(1px);
+        }
+
+        .welcome-footer {
+            margin-top: 18px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .type-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .type-btn {
+            flex: 1;
+            text-align: center;
+            padding: 6px 8px;
+            border-radius: 999px;
+            border: 1px solid #374151;
+            background: #020617;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .type-btn.active {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: #ecfdf5;
+        }
+
+        body.light .type-btn {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #4b5563;
+        }
+
+        body.light .type-btn.active {
+            background: #16a34a;
+            color: #ecfdf5;
+            border-color: #16a34a;
+        }
+
+        #modeToggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 420px;
+            background: #020617;
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            padding: 16px 16px 14px;
+        }
+
+        body.light .modal {
+            background: #ffffff;
+            border-color: #e5e7eb;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            color: #9ca3af;
+            font-size: 18px;
+        }
+
+        body.light .modal-close {
+            color: #6b7280;
+        }
+
+        .link-small {
+            font-size: 11px;
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        body.light .link-small {
+            color: #1d4ed8;
+        }
+
+        .link-small:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body class="dark">
+
+<button id="modeToggle">Light Mode</button>
+
+<div class="app-container">
+
+    <div id="welcomeScreen" class="card welcome">
+        <div class="welcome-title">Track your Medicines 💊</div>
+        <div class="welcome-subtitle">See and manage all your medicines for today in one clean place.</div>
+        <button class="welcome-btn" onclick="openApp()">See your medicines today</button>
+        <div class="welcome-footer">Made by Prabhas</div>
+    </div>
+
+    <div id="appScreen" class="card" style="display:none;">
+        <h1>My Medicine Tracker</h1>
+        <p class="subtitle">Track your morning, afternoon and evening tablets and syrups.</p>
+        <div class="brand">Made by Prabhas</div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setFilter('all', this)">All</button>
+            <button class="tab-btn" onclick="setFilter('morning', this)">Morning Medicines</button>
+            <button class="tab-btn" onclick="setFilter('afternoon', this)">Afternoon Medicines</button>
+            <button class="tab-btn" onclick="setFilter('evening', this)">Evening Medicines</button>
+        </div>
+
+        <div class="layout">
+            <div>
+                <div class="list-header">
+                    <h3>Your Medicines</h3>
+                    <span class="pill"><span id="countLabel">0</span> medicines</span>
+                </div>
+                <div id="medicineList" class="medicine-list"></div>
+                <button class="btn btn-primary" onclick="document.getElementById('addModalBackdrop').style.display='flex'" style="margin-top: 10px; width: 100%;">+ Add Medicine</button>
+            </div>
+
+            <div>
+                <div class="form-card">
+                    <div class="form-title">Quick Tips</div>
+                    <p style="font-size: 13px; color: #9ca3af; margin: 12px 0; line-height: 1.5;">
+                        ✓ Click the <strong>+ Add Medicine</strong> button below the list<br>
+                        ✓ Select Tablet or Syrup type<br>
+                        ✓ Enter medicine details<br>
+                        ✓ Upload prescriptions anytime
+                    </p>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-title">Need Help?</div>
+                    <p style="font-size: 13px; color: #9ca3af; margin: 12px 0; line-height: 1.5;">
+                        • Click <strong>Edit</strong> to modify medicine details<br>
+                        • Click <strong>Prescription</strong> to upload images<br>
+                        • Click <strong>Delete</strong> to remove medicines
+                    </p>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-title">Quick Tips</div>
+                    <p style="font-size: 13px; color: #9ca3af; margin: 12px 0; line-height: 1.5;">
+                        ✓ Click the <strong>+ Add Medicine</strong> button below the list<br>
+                        ✓ Select Tablet or Syrup type<br>
+                        ✓ Enter medicine details<br>
+                        ✓ Upload prescriptions anytime
+                    </p>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-title">Need Help?</div>
+                    <p style="font-size: 13px; color: #9ca3af; margin: 12px 0; line-height: 1.5;">
+                        • Click <strong>Edit</strong> to modify medicine details<br>
+                        • Click <strong>Prescription</strong> to upload images<br>
+                        • Click <strong>Delete</strong> to remove medicines
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="editModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Edit medicine</div>
+            <button class="modal-close" onclick="closeEditModal()">×</button>
+        </div>
+
+        <form id="editForm">
+            <input type="hidden" id="edit_id">
+
+            <div class="form-group">
+                <label for="edit_name">Name</label>
+                <input id="edit_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_dose">Dose (e.g. 500 mg or 10 ml)</label>
+                <input id="edit_dose" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_time_of_day">Time of day</label>
+                <select id="edit_time_of_day">
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                    <option value="evening">Evening</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="edit_active" style="width:auto; margin-right:4px;">
+                    Still taking this medicine
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+    </div>
+</div>
+
+<div id="uploadModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Upload prescription</div>
+            <button class="modal-close" onclick="closeUploadModal()">×</button>
+        </div>
+        <div class="form-group">
+            <label for="prescriptionFile">Choose image (photo / scan)</label>
+            <input type="file" id="prescriptionFile" accept="image/*">
+        </div>
+        <button class="btn btn-primary" onclick="confirmUpload()">Upload</button>
+    </div>
+</div>
+
+<div id="addModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Add medicine</div>
+            <button class="modal-close" onclick="document.getElementById('addModalBackdrop').style.display='none'">×</button>
+        </div>
+
+        <form id="addForm">
+            <div class="form-group">
+                <label>Time of Day</label>
+                <select id="time_of_day" required>
+                    <option value="">Select time</option>
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                    <option value="evening">Evening</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Type</label>
+                <div class="type-row">
+                    <button type="button" class="type-btn active" id="typeTablet" onclick="setMedType('tablet')">Tablet</button>
+                    <button type="button" class="type-btn" id="typeSyrup" onclick="setMedType('syrup')">Syrup</button>
+                </div>
+            </div>
+
+            <div id="tabletFields">
+                <div class="form-group">
+                    <label for="tablet_name">Medicine Name</label>
+                    <input type="text" id="tablet_name" placeholder="e.g., Aspirin">
+                </div>
+                <div class="form-group">
+                    <label for="tablet_mg">Dosage (mg)</label>
+                    <input type="text" id="tablet_mg" placeholder="e.g., 500">
+                </div>
+            </div>
+
+            <div id="syrupFields" style="display: none;">
+                <div class="form-group">
+                    <label for="syrup_name">Syrup Name</label>
+                    <input type="text" id="syrup_name" placeholder="e.g., Cough Syrup">
+                </div>
+                <div class="form-group">
+                    <label for="syrup_ml">Dosage (ml)</label>
+                    <input type="text" id="syrup_ml" placeholder="e.g., 10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="active" checked>
+                    Active medicine
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Medicine</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const baseURL = "http://127.0.0.1:8000";
+    let currentFilter = "all";
+    let currentType = "tablet";
+    let uploadMedId = null;
+    let darkMode = true;
+
+    // Mode toggle
+    const modeToggleBtn = document.getElementById("modeToggle");
+    modeToggleBtn.addEventListener("click", () => {
+        darkMode = !darkMode;
+        if (darkMode) {
+            document.body.classList.remove("light");
+            document.body.classList.add("dark");
+            modeToggleBtn.textContent = "Light Mode";
+        } else {
+            document.body.classList.remove("dark");
+            document.body.classList.add("light");
+            modeToggleBtn.textContent = "Dark Mode";
+        }
+    });
+
+    // Open main app
+    function openApp() {
+        document.getElementById("welcomeScreen").style.display = "none";
+        document.getElementById("appScreen").style.display = "block";
+        loadMedicines();
+    }
+
+    // Filter by time of day
+    function setFilter(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        loadMedicines();
+    }
+
+    // Tablet / Syrup switch - FIXED to work with MODAL form only
+    function setMedType(type) {
+        currentType = type;
+        const tBtn = document.getElementById("typeTablet");
+        const sBtn = document.getElementById("typeSyrup");
+        const tFields = document.getElementById("tabletFields");
+        const sFields = document.getElementById("syrupFields");
+
+        const tabletName = document.getElementById("tablet_name");
+        const tabletMg = document.getElementById("tablet_mg");
+        const syrupName = document.getElementById("syrup_name");
+        const syrupMl = document.getElementById("syrup_ml");
+
+        if (type === "tablet") {
+            tBtn.classList.add("active");
+            sBtn.classList.remove("active");
+            tFields.style.display = "block";
+            sFields.style.display = "none";
+            tabletName.required = true;
+            syrupName.required = false;
+            syrupMl.required = false;
+        } else {
+            tBtn.classList.remove("active");
+            sBtn.classList.add("active");
+            tFields.style.display = "none";
+            sFields.style.display = "block";
+            tabletName.required = false;
+            syrupName.required = true;
+            syrupMl.required = true;
+        }
+    }
+
+    // Load medicines
+    async function loadMedicines() {
+        try {
+            let url = baseURL + "/medicines";
+            if (currentFilter !== "all") {
+                url += "?time_of_day=" + currentFilter;
+            }
+            const res = await fetch(url);
+            const medicines = await res.json();
+
+            const list = document.getElementById("medicineList");
+            list.innerHTML = "";
+            document.getElementById("countLabel").innerText = medicines.length;
+
+            if (medicines.length === 0) {
+                list.innerHTML = `<div class="empty-state">No medicines here yet. Add one on the right.</div>`;
+                return;
+            }
+
+            medicines.forEach(med => {
+                const card = document.createElement("div");
+                card.className = "med-card";
+
+                const timeTag = `<span class="tag ${med.time_of_day}">${med.time_of_day.charAt(0).toUpperCase() + med.time_of_day.slice(1)}</span>`;
+                let typeTag = "";
+                if (med.notes === "Tablet") {
+                    typeTag = `<span class="tag">Tablet</span>`;
+                } else if (med.notes === "Syrup") {
+                    typeTag = `<span class="tag">Syrup</span>`;
+                }
+
+                const statusHTML = med.active
+                    ? `<span class="status-badge status-active">Active</span>`
+                    : `<span class="status-badge status-inactive">Stopped</span>`;
+
+                const prescriptionLink = med.prescription_url
+                    ? `<a class="link-small" href="${med.prescription_url}" target="_blank">View prescription</a>`
+                    : `<span class="small-text">No prescription</span>`;
+
+                card.innerHTML = `
+                    <div class="med-main">
+                        <div class="med-title">${med.name}</div>
+                        <div class="med-dose">${med.dose || ""}</div>
+                        <div class="med-tags">
+                            ${timeTag}
+                            ${typeTag}
+                            ${statusHTML}
+                        </div>
+                        <div style="margin-top:4px;">${prescriptionLink}</div>
+                    </div>
+                    <div class="med-actions">
+                        <button class="btn btn-edit btn-small" onclick="openEditModal(${med.id})">Edit</button>
+                        <button class="btn btn-secondary btn-small" onclick="openUploadModal(${med.id})">Prescription</button>
+                        <button class="btn btn-delete btn-small" onclick="deleteMed(${med.id})">Delete</button>
+                    </div>
+                `;
+
+                list.appendChild(card);
+            });
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById("medicineList").innerHTML = `<div class="empty-state">Error loading medicines. Is backend running?</div>`;
+        }
+    }
+
+    // Add medicine - FIXED to use modal form
+    const addFormElement = document.querySelector("#addModalBackdrop form");
+    addFormElement.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const time_of_day = addFormElement.querySelector("#time_of_day").value;
+        const active = addFormElement.querySelector("#active").checked;
+
+        let name = "";
+        let dose = "";
+        let notes = "";
+
+        if (currentType === "tablet") {
+            const tName = addFormElement.querySelector("#tablet_name").value.trim();
+            const tMg = addFormElement.querySelector("#tablet_mg").value.trim();
+            if (!tName) {
+                alert("Enter tablet name");
+                return;
+            }
+            name = tName;
+            dose = tMg ? `${tMg} mg` : "";
+            notes = "Tablet";
+        } else {
+            const sName = addFormElement.querySelector("#syrup_name").value.trim();
+            const sMl = addFormElement.querySelector("#syrup_ml").value.trim();
+            if (!sName || !sMl) {
+                alert("Enter syrup name and ml");
+                return;
+            }
+            name = sName;
+            dose = `${sMl} ml`;
+            notes = "Syrup";
+        }
+
+        const payload = { name, dose, time_of_day, notes, active };
+
+        try {
+            const res = await fetch(baseURL + "/medicines", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            
+            if (!res.ok) {
+                alert("Failed to add medicine");
+                return;
+            }
+
+            // Clear and close
+            addFormElement.reset();
+            addFormElement.querySelector("#active").checked = true;
+            document.getElementById("addModalBackdrop").style.display = "none";
+            setMedType("tablet");
+            loadMedicines();
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    });
+
+    // Edit modal
+    async function openEditModal(id) {
+        const res = await fetch(`${baseURL}/medicines/${id}`);
+        if (!res.ok) {
+            alert("Unable to load medicine");
+            return;
+        }
+        const med = await res.json();
+
+        document.getElementById("edit_id").value = med.id;
+        document.getElementById("edit_name").value = med.name;
+        document.getElementById("edit_dose").value = med.dose;
+        document.getElementById("edit_time_of_day").value = med.time_of_day;
+        document.getElementById("edit_active").checked = med.active;
+
+        document.getElementById("editModalBackdrop").style.display = "flex";
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModalBackdrop").style.display = "none";
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const id = document.getElementById("edit_id").value;
+        const payload = {
+            name: document.getElementById("edit_name").value,
+            dose: document.getElementById("edit_dose").value,
+            time_of_day: document.getElementById("edit_time_of_day").value,
+            active: document.getElementById("edit_active").checked
+        };
+
+        await fetch(`${baseURL}/medicines/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        closeEditModal();
+        loadMedicines();
+    });
+
+    // Delete
+    async function deleteMed(id) {
+        if (!confirm("Delete this medicine?")) return;
+        await fetch(`${baseURL}/medicines/${id}`, { method: "DELETE" });
+        loadMedicines();
+    }
+
+    // Upload prescription
+    function openUploadModal(id) {
+        uploadMedId = id;
+        
+        // Fetch medicine to check if prescription exists
+        fetch(`${baseURL}/medicines/${id}`)
+            .then(res => res.json())
+            .then(med => {
+                if (med.prescription_url) {
+                    // Show existing prescription
+                    const modalTitle = document.querySelector("#uploadModalBackdrop .modal-title");
+                    const fileInput = document.getElementById("prescriptionFile");
+                    const uploadBtn = document.querySelector("#uploadModalBackdrop .btn-primary");
+                    
+                    // Change modal to show image
+                    const modal = document.querySelector("#uploadModalBackdrop .modal");
+                    modal.innerHTML = `
+                        <div class="modal-header">
+                            <div class="modal-title">View Prescription</div>
+                            <button class="modal-close" onclick="closeUploadModal()">×</button>
+                        </div>
+                        <div style="text-align: center; padding: 20px;">
+                            <img src="${med.prescription_url}" style="max-width: 100%; max-height: 400px; border-radius: 8px;">
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-secondary" onclick="document.getElementById('prescriptionFile').click()">Upload New</button>
+                                <input type="file" id="prescriptionFile" accept="image/*" style="display: none;" onchange="confirmUpload()">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // No prescription, show upload form
+                    const modal = document.querySelector("#uploadModalBackdrop .modal");
+                    modal.innerHTML = `
+                        <div class="modal-header">
+                            <div class="modal-title">Upload Prescription</div>
+                            <button class="modal-close" onclick="closeUploadModal()">×</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="prescriptionFile">Choose image (photo / scan)</label>
+                            <input type="file" id="prescriptionFile" accept="image/*">
+                        </div>
+                        <button class="btn btn-primary" onclick="confirmUpload()">Upload</button>
+                    `;
+                }
+                
+                document.getElementById("uploadModalBackdrop").style.display = "flex";
+            });
+    }
+
+    function closeUploadModal() {
+        document.getElementById("uploadModalBackdrop").style.display = "none";
+    }
+
+    async function confirmUpload() {
+        const fileInput = document.getElementById("prescriptionFile");
+        if (!fileInput.files.length) {
+            alert("Please choose an image");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        try {
+            const res = await fetch(`${baseURL}/upload-prescription/${uploadMedId}`, {
+                method: "POST",
+                body: formData
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                alert("Upload failed: " + (error.detail || "Unknown error"));
+                return;
+            }
+
+            const data = await res.json();
+            alert("Prescription uploaded successfully!");
+            closeUploadModal();
+            loadMedicines();
+        } catch (err) {
+            alert("Error uploading: " + err.message);
+        }
+    }
+
+    // Initial setup
+    setMedType("tablet");
+</script>
+
+</body>
+</html>
